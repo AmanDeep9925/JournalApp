@@ -1,7 +1,7 @@
-package com.bujo.journalApp.controllers;
+package com.bujo.journalapp.controllers;
 
-import com.bujo.journalApp.entity.JournalEntry;
-import com.bujo.journalApp.services.JournalServices;
+import com.bujo.journalapp.entity.JournalEntry;
+import com.bujo.journalapp.services.JournalServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-package com.bujo.journalApp.entity;
+package com.bujo.journalapp.entity;
 
 public class JournalEntry {
     private long id;

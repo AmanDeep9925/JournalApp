@@ -1,6 +1,6 @@
-package com.bujo.journalApp.services;
+package com.bujo.journalapp.services;
 
-import com.bujo.journalApp.entity.JournalEntry;
+import com.bujo.journalapp.entity.JournalEntry;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
