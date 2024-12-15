@@ -1,36 +1,49 @@
 package com.bujo.journalapp.services;
 
 import com.bujo.journalapp.entity.JournalEntry;
+import com.bujo.journalapp.repository.JournalRepository;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class JournalServices {
 
-    private Map<Long,JournalEntry> journalEntries = new HashMap<>();
+    @Autowired
+    private JournalRepository journalRepository;
 
     public  List<JournalEntry> getAllEntries() {
-        return new ArrayList<>(journalEntries.values());
+        return journalRepository.findAll();
     }
 
     public boolean addEntry(JournalEntry entry) {
-        journalEntries.put(entry.getId(), entry);
+        entry.setCreatedAt(LocalDateTime.now());
+        journalRepository.save(entry);
         return true;
     }
 
-    public JournalEntry getEntryById(long id) {
-        return journalEntries.get(id);
+    public JournalEntry getEntryById(String id) {
+        Optional<JournalEntry> journalEntry =  journalRepository.findById(id);
+        return journalEntry.orElse(null);
     }
 
-    public boolean removeEntryById(long id) {
-        return journalEntries.remove(id) != null;
+    public boolean removeEntryById(String id) {
+        journalRepository.deleteById(id);
+        return true;
     }
 
-    public boolean updateEntry(long entryId, JournalEntry entry) {
-        return journalEntries.put(entryId, entry) != null;
+    public JournalEntry updateEntry(String entryId, JournalEntry entry) {
+        JournalEntry oldEntry = journalRepository.findById(entryId).orElse(null);
+        if (oldEntry != null) {
+            oldEntry.setTitle(entry.getTitle() != null && !Objects.equals(entry.getTitle(), "") ? entry.getTitle() : oldEntry.getTitle());
+            oldEntry.setContent(entry.getContent() != null && !Objects.equals(entry.getContent(), "") ? entry.getContent() : oldEntry.getContent());
+        }
+        journalRepository.save(oldEntry);
+        return oldEntry;
     }
 }

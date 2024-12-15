@@ -2,6 +2,7 @@ package com.bujo.journalapp.controllers;
 
 import com.bujo.journalapp.entity.JournalEntry;
 import com.bujo.journalapp.services.JournalServices;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,17 +26,17 @@ public class Journal {
     }
 
     @GetMapping("/id")
-    public JournalEntry getJournalEntry(@RequestParam("entry_id") Long entryId) {
+    public JournalEntry getJournalEntry(@RequestParam("entry_id") String entryId) {
         return journalServices.getEntryById(entryId);
     }
 
     @DeleteMapping("/id/{entry-id}")
-    public boolean deleteEntry(@PathVariable("entry-id") Long entryId) {
+    public boolean deleteEntry(@PathVariable("entry-id") String entryId) {
         return journalServices.removeEntryById(entryId);
     }
 
     @PutMapping("/id/{entry-id}")
-    public boolean updateEntry(@PathVariable("entry-id") Long entryId, @RequestBody JournalEntry journalEntry) {
+    public JournalEntry updateEntry(@PathVariable("entry-id") String entryId, @RequestBody JournalEntry journalEntry) {
         return journalServices.updateEntry(entryId, journalEntry);
     }
 }
