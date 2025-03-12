@@ -53,7 +53,7 @@ public class Journal {
     public ResponseEntity<?> deleteEntry(@PathVariable("entry-id") String entryId) {
         boolean isDeleted = journalServices.removeEntryById(entryId);
         if (!isDeleted) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>("Deleted from list", HttpStatus.OK);
     }
@@ -62,7 +62,7 @@ public class Journal {
     public ResponseEntity<JournalEntry> updateEntry(@PathVariable("entry-id") String entryId, @RequestBody JournalEntry journalEntry) {
         JournalEntry updatedEntry = journalServices.getEntryById(entryId);
         if (ObjectUtils.isEmpty(updatedEntry)) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(updatedEntry, HttpStatus.CREATED);
     }
