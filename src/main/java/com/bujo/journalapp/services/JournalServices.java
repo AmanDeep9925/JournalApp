@@ -1,7 +1,9 @@
 package com.bujo.journalapp.services;
 
 import com.bujo.journalapp.entity.JournalEntry;
+import com.bujo.journalapp.entity.User;
 import com.bujo.journalapp.repository.JournalRepository;
+import com.bujo.journalapp.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,17 +16,36 @@ import java.util.*;
 @Service
 public class JournalServices {
 
-    @Autowired
-    private JournalRepository journalRepository;
+    private final JournalRepository journalRepository;
+    private final UserService userService;
 
-    public  List<JournalEntry> getAllEntries() {
-        return journalRepository.findAll();
+    public JournalServices(JournalRepository journalRepository, UserService userService) {
+        this.journalRepository = journalRepository;
+        this.userService = userService;
     }
 
-    public boolean addEntry(JournalEntry entry) {
+    public  List<JournalEntry> getAllEntries (String userName) {
+        User user = userService.getUserByUsername(userName);
+        if (ObjectUtils.isEmpty(user)) {
+            return null;
+        }
+        return user.getJournalEntries();
+    }
+
+    public boolean addEntry(String username, JournalEntry entry) {
+        User user = userService.getUserByUsername(username);
+        if (ObjectUtils.isEmpty(user)) {
+            return false;
+        }
         entry.setCreatedAt(LocalDateTime.now());
-        journalRepository.save(entry);
+        JournalEntry savedEntry = journalRepository.save(entry);
+        user.getJournalEntries().add(savedEntry);
+        userService.saveUser(user);
         return true;
+    }
+
+    public void addEntry(JournalEntry entry) {
+        journalRepository.save(entry);
     }
 
     public JournalEntry getEntryById(String id) {
@@ -32,18 +53,24 @@ public class JournalServices {
         return journalEntry.orElse(null);
     }
 
-    public boolean removeEntryById(String id) {
+    public boolean removeEntryById(String userName, String id) {
+        User user = userService.getUserByUsername(userName);
+        if (ObjectUtils.isEmpty(user)) {
+            return false;
+        }
+        user.getJournalEntries().removeIf(entry -> entry.getId().equals(id));
+        userService.saveUser(user);
         journalRepository.deleteById(id);
         return true;
     }
 
-    public JournalEntry updateEntry(String entryId, JournalEntry entry) {
+    public JournalEntry updateEntry(String userName, String entryId, JournalEntry entry) {
         JournalEntry oldEntry = journalRepository.findById(entryId).orElse(null);
         if (oldEntry != null) {
             oldEntry.setTitle(entry.getTitle() != null && !Objects.equals(entry.getTitle(), "") ? entry.getTitle() : oldEntry.getTitle());
             oldEntry.setContent(entry.getContent() != null && !Objects.equals(entry.getContent(), "") ? entry.getContent() : oldEntry.getContent());
         }
-        journalRepository.save(oldEntry);
+        addEntry(oldEntry);
         return oldEntry;
     }
 }
