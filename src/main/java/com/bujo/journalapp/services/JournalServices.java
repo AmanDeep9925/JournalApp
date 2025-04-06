@@ -7,6 +7,7 @@ import com.bujo.journalapp.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
@@ -32,16 +33,22 @@ public class JournalServices {
         return user.getJournalEntries();
     }
 
+    @Transactional
     public boolean addEntry(String username, JournalEntry entry) {
-        User user = userService.getUserByUsername(username);
-        if (ObjectUtils.isEmpty(user)) {
+        try {
+            User user = userService.getUserByUsername(username);
+            if (ObjectUtils.isEmpty(user)) {
+                return false;
+            }
+            entry.setCreatedAt(LocalDateTime.now());
+            JournalEntry savedEntry = journalRepository.save(entry);
+            user.getJournalEntries().add(savedEntry);
+            userService.saveUser(user);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             return false;
         }
-        entry.setCreatedAt(LocalDateTime.now());
-        JournalEntry savedEntry = journalRepository.save(entry);
-        user.getJournalEntries().add(savedEntry);
-        userService.saveUser(user);
-        return true;
     }
 
     public void addEntry(JournalEntry entry) {
