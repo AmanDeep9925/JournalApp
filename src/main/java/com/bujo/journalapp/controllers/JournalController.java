@@ -29,11 +29,11 @@ public class JournalController {
 
     @PostMapping("/add-entry/{username}")
     public ResponseEntity<?> addEntry(@PathVariable("username") String userName, @RequestBody JournalEntry journalEntry) {
-        boolean entryAdded = journalServices.addEntry(userName, journalEntry);
-        if (!entryAdded) {
+        List<?> entryAdded = journalServices.addEntry(userName, journalEntry);
+        if (ObjectUtils.isEmpty(entryAdded)) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>("Added to list",HttpStatus.CREATED);
+        return new ResponseEntity<>(entryAdded,HttpStatus.CREATED);
     }
 
     @GetMapping("/id/{entry-id}")

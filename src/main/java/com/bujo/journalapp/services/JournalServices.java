@@ -34,20 +34,20 @@ public class JournalServices {
     }
 
     @Transactional
-    public boolean addEntry(String username, JournalEntry entry) {
+    public List<?> addEntry(String username, JournalEntry entry) {
         try {
             User user = userService.getUserByUsername(username);
             if (ObjectUtils.isEmpty(user)) {
-                return false;
+                return null;
             }
             entry.setCreatedAt(LocalDateTime.now());
             JournalEntry savedEntry = journalRepository.save(entry);
             user.getJournalEntries().add(savedEntry);
             userService.saveUser(user);
-            return true;
+            return user.getJournalEntries();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return false;
+            return null;
         }
     }
 
